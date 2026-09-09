@@ -153,34 +153,83 @@ const minZoom = 0.3;
 const maxZoom = 3;
 let lastMouse: Vector2 | null = null;
 
+const zoomAt = (anchor: Vector2, nextZoom: number) => {
+	const clamped = Math.min(maxZoom, Math.max(minZoom, nextZoom));
+	const world = center.add(
+		anchor
+			.subtract(center)
+			.subtract(pan)
+			.scale(1 / zoom),
+	);
+	pan = anchor.subtract(center).subtract(world.subtract(center).scale(clamped));
+	zoom = clamped;
+};
+
 renderer.canvas.addEventListener(
 	"wheel",
 	(e) => {
 		e.preventDefault();
 		followTarget = null;
 		const factor = e.deltaY < 0 ? 1.1 : 1 / 1.1;
-		const nextZoom = Math.min(maxZoom, Math.max(minZoom, zoom * factor));
-		const mouse = input.getMousePosition();
-		const world = center.add(
-			mouse
-				.subtract(center)
-				.subtract(pan)
-				.scale(1 / zoom),
-		);
-		pan = mouse
-			.subtract(center)
-			.subtract(world.subtract(center).scale(nextZoom));
-		zoom = nextZoom;
+		zoomAt(input.getMousePosition(), zoom * factor);
 	},
 	{ passive: false },
 );
 
-const starField = Array.from({ length: 220 }, (_, i) => {
-	const x = (i * 97.3) % renderer.width;
-	const y = (i * 61.7) % renderer.height;
-	const size = 0.5 + ((i * 13) % 10) / 10;
-	return { position: new Vector2(x, y), size };
-});
+let isPinching = false;
+let pinchDistance = 0;
+let pinchStartZoom = 1;
+let pinchCenter = new Vector2(0, 0);
+const touchDistance = (touches: TouchList) => {
+	const a = touches[0] as Touch;
+	const b = touches[1] as Touch;
+	return Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+};
+renderer.canvas.addEventListener(
+	"touchstart",
+	(e) => {
+		if (e.touches.length === 2) {
+			isPinching = true;
+			followTarget = null;
+			pinchDistance = touchDistance(e.touches);
+			pinchStartZoom = zoom;
+			const a = e.touches[0] as Touch;
+			const b = e.touches[1] as Touch;
+			const rect = renderer.canvas.getBoundingClientRect();
+			pinchCenter = new Vector2(
+				(a.clientX + b.clientX) / 2 - rect.left,
+				(a.clientY + b.clientY) / 2 - rect.top,
+			);
+		}
+	},
+	{ passive: false },
+);
+renderer.canvas.addEventListener(
+	"touchmove",
+	(e) => {
+		if (!isPinching || e.touches.length !== 2) return;
+		e.preventDefault();
+		const ratio = touchDistance(e.touches) / pinchDistance;
+		zoomAt(pinchCenter, pinchStartZoom * ratio);
+	},
+	{ passive: false },
+);
+renderer.canvas.addEventListener(
+	"touchend",
+	(e) => {
+		if (e.touches.length < 2) isPinching = false;
+	},
+	{ passive: false },
+);
+
+const buildStarField = () =>
+	Array.from({ length: 220 }, (_, i) => {
+		const x = (i * 97.3) % renderer.width;
+		const y = (i * 61.7) % renderer.height;
+		const size = 0.5 + ((i * 13) % 10) / 10;
+		return { position: new Vector2(x, y), size };
+	});
+let starField = buildStarField();
 
 const sun = new CelestialBody(
 	center,
@@ -293,6 +342,11 @@ let followTarget: CelestialBody | null = null;
 
 const menu = document.querySelector("#planetMenu") as HTMLDivElement;
 
+const menuToggle = document.querySelector("#menuToggle") as HTMLButtonElement;
+menuToggle.addEventListener("click", () => {
+	menu.classList.toggle("collapsed");
+});
+
 const speedControl = document.createElement("label");
 speedControl.className = "speed";
 speedControl.textContent = "Velocidade: ";
@@ -322,7 +376,7 @@ const menuEntries: MenuEntry[] = bodies.map((body) => {
 
 const loop = () => {
 	const mouse = input.getMousePosition();
-	if (input.isMouseDown(0)) {
+	if (input.isMouseDown(0) && !isPinching) {
 		followTarget = null;
 		if (lastMouse) {
 			pan = pan.add(mouse.subtract(lastMouse).scale(1 / zoom));
@@ -427,5 +481,6 @@ const loop = () => {
 window.addEventListener("resize", () => {
 	renderer.setSize(window.innerWidth, window.innerHeight);
 	center = new Vector2(renderer.width / 2, renderer.height / 2);
+	starField = buildStarField();
 });
 requestAnimationFrame(loop);
