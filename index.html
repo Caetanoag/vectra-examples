@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vectra Concepts</title>
+    <style>
+        :root {
+            --bg: #0b0f14;
+            --panel: #121820;
+            --panel-hover: #18222d;
+            --border: #223041;
+            --text: #d7e1ea;
+            --muted: #8ba0b4;
+            --accent: #4aa3ff;
+        }
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background:
+                radial-gradient(1200px 600px at 80% -10%, color-mix(in srgb, var(--accent) 12%, transparent), transparent),
+                var(--bg);
+            color: var(--text);
+            font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 48px 24px;
+        }
+        main {
+            width: 100%;
+            max-width: 1080px;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        header .badge {
+            display: inline-block;
+            font-family: monospace;
+            font-size: 13px;
+            color: var(--accent);
+            border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+            border-radius: 999px;
+            padding: 4px 14px;
+            margin-bottom: 16px;
+            letter-spacing: 0.5px;
+        }
+        header h1 {
+            font-size: 40px;
+            margin: 0 0 10px;
+            letter-spacing: -0.5px;
+        }
+        header p {
+            color: var(--muted);
+            font-size: 16px;
+            max-width: 640px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-top: 8px;
+        }
+        .card {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 18px;
+            text-decoration: none;
+            color: inherit;
+            transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+            background: var(--panel-hover);
+        }
+        .card h2 {
+            font-size: 18px;
+            margin: 0;
+        }
+        .card p {
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.55;
+            margin: 0;
+            flex: 1;
+        }
+        .card .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .card .tag {
+            font-family: monospace;
+            font-size: 11px;
+            color: var(--muted);
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 2px 8px;
+        }
+        .card .open {
+            font-size: 13px;
+            color: var(--accent);
+            font-weight: 500;
+        }
+        @media (max-width: 960px) {
+            .grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (max-width: 600px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <header>
+            <span class="badge">Prova de conceito</span>
+            <h1>Vectra Concepts</h1>
+            <p>
+                Página dedicada a aplicações construídas com a Vectra, uma biblioteca
+                de gráficos 2D para web. Cada card abaixo é uma demonstração
+                independente mostrando na prática o que dá para fazer com ela.
+            </p>
+        </header>
+        <div id="grid" class="grid"></div>
+    </main>
+    <script>
+        const EXAMPLES = [
+            {
+                title: "Sistema Solar",
+                description:
+                    "Simulação gravitacional N-corpos com planetas em órbita, câmera com pan e zoom, colisões elásticas e rastros de órbita.",
+                href: "./solar-system/index.html",
+                tags: [
+                    "CanvasRenderer",
+                    "Vector2",
+                    "Circle",
+                    "Color",
+                    "InputManager",
+                    "Vectra 0.1.0"
+                ],
+            },
+        ];
+
+        const grid = document.getElementById("grid");
+        for (const example of EXAMPLES) {
+            const card = document.createElement("a");
+            card.className = "card";
+            card.href = example.href;
+
+            const title = document.createElement("h2");
+            title.textContent = example.title;
+
+            const description = document.createElement("p");
+            description.textContent = example.description;
+
+            const tags = document.createElement("div");
+            tags.className = "tags";
+            for (const tag of example.tags) {
+                const el = document.createElement("span");
+                el.className = "tag";
+                el.textContent = tag;
+                tags.appendChild(el);
+            }
+
+            const open = document.createElement("span");
+            open.className = "open";
+            open.textContent = "Abrir exemplo →";
+
+            card.appendChild(title);
+            card.appendChild(description);
+            card.appendChild(tags);
+            card.appendChild(open);
+            grid.appendChild(card);
+        }
+    </script>
+</body>
+</html>

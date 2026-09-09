@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar System</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: black;
+        }
+        canvas {
+            display: block;
+        }
+        #planetMenu {
+            position: fixed;
+            top: 12px;
+            right: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            padding: 8px 10px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 6px;
+            color: #ddd;
+            font-family: monospace;
+            font-size: 20px;
+            max-height: 80vh;
+            overflow-y: auto;
+            user-select: none;
+        }
+        #planetMenu .entry {
+            cursor: pointer;
+            white-space: nowrap;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        #planetMenu .entry:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+        #planetMenu .speed {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 6px;
+            white-space: nowrap;
+        }
+        #planetMenu .speed select {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ddd;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            padding: 1px 4px;
+            font-family: monospace;
+            font-size: 20px;
+            background-color: black;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="solarCanvas" width="800" height="600"></canvas>
+    <div id="planetMenu"></div>
+    <script type="module" src="main.js"></script>
+</body>
+</html>
