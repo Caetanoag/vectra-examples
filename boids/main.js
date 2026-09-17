@@ -1,10 +1,11 @@
-import { CanvasRenderer, Color, Vector2 } from "../lib/index.js";
+import { CanvasRenderer, Color, InputManager, Rect, Vector2, } from "../lib/index.js";
 class Boid {
     position;
     velocity;
     acceleration;
     static COLOR = Color.black();
     static RADIUS = 10;
+    static MOUSE_FEAR_RADIUS = Boid.RADIUS * 10;
     constructor(position, velocity = new Vector2(1, 1), acceleration = new Vector2(0, 0)) {
         this.position = position;
         this.velocity = velocity;
@@ -26,17 +27,14 @@ class Boid {
             this.velocity = dir.normalized().scale(200);
             return;
         }
-        // fator independente de frame rate
         const t = 1 - Math.exp(-rate * dt);
         const current = this.velocity.angle;
         const target = dir.angle;
         let delta = target - current;
-        // normaliza pra [-π, π] — gira pelo caminho curto
         delta = Math.atan2(Math.sin(delta), Math.cos(delta));
         this.velocity = this.velocity.rotate(delta * t);
     }
-    update(dt, box) {
-        this.velocity = this.velocity.add(this.acceleration.scale(dt));
+    bounceFromWalls(dt, box) {
         let p = this.position.add(this.velocity.scale(dt));
         let v = this.velocity;
         if (p.x < box.left || p.x > box.right) {
@@ -47,9 +45,29 @@ class Boid {
             v = new Vector2(v.x, -v.y);
             p = new Vector2(p.x, Math.max(box.top, Math.min(box.bottom, p.y)));
         }
+        return { v, p };
+    }
+    steerAwayFromMouse(mouse, rate, dt) {
+        const away = this.position.subtract(mouse); // vetor do rato → boid
+        const distance = away.length;
+        if (distance >= Boid.MOUSE_FEAR_RADIUS || distance < 1e-6)
+            return;
+        if (this.velocity.length < 1e-6) {
+            this.velocity = away.normalized().scale(200);
+            return;
+        }
+        const t = 1 - Math.exp(-rate * dt);
+        let delta = away.angle - this.velocity.angle;
+        delta = Math.atan2(Math.sin(delta), Math.cos(delta));
+        this.velocity = this.velocity.rotate(delta * t);
+    }
+    update(dt, box, mouse) {
+        this.velocity = this.velocity.add(this.acceleration.scale(dt));
+        this.steerAwayFromMouse(mouse, 8, dt);
+        this.steerAwayFromWalls(box, 200, 8, dt);
+        const { v, p } = this.bounceFromWalls(dt, box);
         this.velocity = v;
         this.position = p;
-        this.steerAwayFromWalls(box, 200, 8, dt);
         this.acceleration = new Vector2(0, 0);
     }
     draw(renderer) {
@@ -63,13 +81,18 @@ class Boid {
 }
 const canvas = document.querySelector("canvas");
 const renderer = new CanvasRenderer(canvas);
+const input = new InputManager(canvas);
 renderer.setSize(window.innerWidth, window.innerHeight);
-const boid = new Boid(renderer.boundingRect.center, new Vector2(0.5, 1.2).scale(renderer.width));
-const dt = 1 / 60;
+const boid = new Boid(renderer.boundingRect.center, new Vector2(0.5, 0.8).scale(renderer.width));
+let last = performance.now();
 function loop() {
+    const dt = Math.min((performance.now() - last) / 1000, 0.05);
+    const mousePosition = input.getMousePosition();
+    last = performance.now();
     renderer.clear();
     boid.draw(renderer);
-    boid.update(dt, renderer.boundingRect);
+    renderer.fillRect(Rect.fromCenter(mousePosition, new Vector2(Boid.MOUSE_FEAR_RADIUS * 0.2, Boid.MOUSE_FEAR_RADIUS * 0.2)), Color.green());
+    boid.update(dt, renderer.boundingRect, mousePosition);
     requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);

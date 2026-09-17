@@ -1,4 +1,10 @@
-import { CanvasRenderer, Color, type Rect, Vector2 } from "../lib/index.js";
+import {
+	CanvasRenderer,
+	Color,
+	InputManager,
+	Rect,
+	Vector2,
+} from "../lib/index.js";
 
 class Boid {
 	public position: Vector2;
@@ -6,6 +12,7 @@ class Boid {
 	public acceleration: Vector2;
 	private static readonly COLOR: Color = Color.black();
 	private static readonly RADIUS: number = 10;
+	public static readonly MOUSE_FEAR_RADIUS: number = Boid.RADIUS * 10;
 
 	constructor(
 		position: Vector2,
@@ -48,8 +55,7 @@ class Boid {
 
 		this.velocity = this.velocity.rotate(delta * t);
 	}
-	public update(dt: number, box: Rect) {
-		this.velocity = this.velocity.add(this.acceleration.scale(dt));
+	private bounceFromWalls(dt: number, box: Rect): { v: Vector2; p: Vector2 } {
 		let p = this.position.add(this.velocity.scale(dt));
 		let v = this.velocity;
 
@@ -61,10 +67,30 @@ class Boid {
 			v = new Vector2(v.x, -v.y);
 			p = new Vector2(p.x, Math.max(box.top, Math.min(box.bottom, p.y)));
 		}
+		return { v, p };
+	}
+	private steerAwayFromMouse(mouse: Vector2, rate: number, dt: number): void {
+		const away = this.position.subtract(mouse); // vetor do rato → boid
+		const distance = away.length;
 
+		if (distance >= Boid.MOUSE_FEAR_RADIUS || distance < 1e-6) return;
+		if (this.velocity.length < 1e-6) {
+			this.velocity = away.normalized().scale(200);
+			return;
+		}
+
+		const t = 1 - Math.exp(-rate * dt);
+		let delta = away.angle - this.velocity.angle;
+		delta = Math.atan2(Math.sin(delta), Math.cos(delta));
+		this.velocity = this.velocity.rotate(delta * t);
+	}
+	public update(dt: number, box: Rect, mouse: Vector2) {
+		this.velocity = this.velocity.add(this.acceleration.scale(dt));
+		this.steerAwayFromMouse(mouse, 8, dt);
+		this.steerAwayFromWalls(box, 200, 8, dt);
+		const { v, p } = this.bounceFromWalls(dt, box);
 		this.velocity = v;
 		this.position = p;
-		this.steerAwayFromWalls(box, 200, 8, dt);
 		this.acceleration = new Vector2(0, 0);
 	}
 	public draw(renderer: CanvasRenderer): void {
@@ -81,17 +107,29 @@ class Boid {
 }
 const canvas = document.querySelector("canvas");
 const renderer = new CanvasRenderer(canvas as HTMLCanvasElement);
+const input = new InputManager(canvas as HTMLElement);
 renderer.setSize(window.innerWidth, window.innerHeight);
 const boid = new Boid(
 	renderer.boundingRect.center,
-	new Vector2(0.5, 1.2).scale(renderer.width),
+	new Vector2(0.5, 0.8).scale(renderer.width),
 );
 
-const dt = 1 / 60;
+let last = performance.now();
+
 function loop() {
+	const dt = Math.min((performance.now() - last) / 1000, 0.05);
+	const mousePosition = input.getMousePosition();
+	last = performance.now();
 	renderer.clear();
 	boid.draw(renderer);
-	boid.update(dt, renderer.boundingRect);
+	renderer.fillRect(
+		Rect.fromCenter(
+			mousePosition,
+			new Vector2(Boid.MOUSE_FEAR_RADIUS * 0.2, Boid.MOUSE_FEAR_RADIUS * 0.2),
+		),
+		Color.green(),
+	);
+	boid.update(dt, renderer.boundingRect, mousePosition);
 	requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
