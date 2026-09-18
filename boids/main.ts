@@ -16,11 +16,10 @@ class Boid {
 	protected trail: { pos: Vector2; angle: number }[] = [];
 
 	protected static readonly DEFAULT_RADIUS = 10;
-	protected static readonly TRAIL_LENGTH = 6;
 	protected static readonly WANDER_STRENGTH = 0.05;
 	public static readonly MOUSE_FEAR_RADIUS = 100;
 	public static readonly PREDATOR_FEAR_RADIUS = 180;
-
+	private readonly SPECIES: number;
 	constructor(
 		position: Vector2,
 		velocity: Vector2 = new Vector2(1, 1),
@@ -29,7 +28,13 @@ class Boid {
 		this.position = position;
 		this.velocity = velocity;
 		this.acceleration = acceleration;
-		this.color = Color.fromRgb(100, 100, 255);
+		this.SPECIES = (Math.random() * 10) & 1;
+
+		if (this.SPECIES === 1) {
+			this.color = Color.fromRgb(100, 100, 255);
+		} else {
+			this.color = Color.fromRgb(100, 255, 100);
+		}
 		this.radius = Boid.DEFAULT_RADIUS;
 	}
 
@@ -53,6 +58,7 @@ class Boid {
 		let count = 0;
 		for (const other of others) {
 			if (other === this) continue;
+			if (other.SPECIES !== this.SPECIES) continue;
 			if (this.position.distanceTo(other.position) < radius) {
 				avg = avg.add(other.velocity.normalized());
 				count++;
@@ -66,6 +72,7 @@ class Boid {
 		let count = 0;
 		for (const other of others) {
 			if (other === this) continue;
+			if (other.SPECIES !== this.SPECIES) continue;
 			if (this.position.distanceTo(other.position) < radius) {
 				center = center.add(other.position);
 				count++;
@@ -173,15 +180,6 @@ class Boid {
 		}
 		return { v, p };
 	}
-
-	protected updateTrail(): void {
-		this.trail.unshift({
-			pos: this.position,
-			angle: this.velocity.angle,
-		});
-		if (this.trail.length > Boid.TRAIL_LENGTH) this.trail.pop();
-	}
-
 	protected drawBody(
 		renderer: CanvasRenderer,
 		position: Vector2,
@@ -219,16 +217,9 @@ class Boid {
 		this.velocity = v;
 		this.position = p;
 		this.acceleration = new Vector2(0, 0);
-		this.updateTrail();
 	}
 
 	public draw(renderer: CanvasRenderer): void {
-		for (let i = this.trail.length - 1; i >= 0; i--) {
-			const t = this.trail[i];
-			if (!t) continue;
-			const alpha = (this.trail.length - i) / this.trail.length;
-			this.drawBody(renderer, t.pos, t.angle, this.color.withAlpha(alpha));
-		}
 		this.drawBody(renderer, this.position, this.velocity.angle, this.color);
 	}
 }
@@ -288,7 +279,6 @@ class Predator extends Boid {
 		this.velocity = v;
 		this.position = p;
 		this.acceleration = new Vector2(0, 0);
-		this.updateTrail();
 	}
 }
 
@@ -322,7 +312,10 @@ function loop(now: number) {
 	const mousePosition = input.getMousePosition();
 	last = now;
 
-	renderer.fillRect(renderer.boundingRect, Color.fromHex("#242b32"));
+	renderer.fillRect(
+		renderer.boundingRect,
+		Color.fromHex("#242b32").withAlpha(0.35),
+	);
 	renderer.fillRect(
 		Rect.fromCenter(
 			mousePosition,
