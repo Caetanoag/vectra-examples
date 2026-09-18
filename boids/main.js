@@ -167,7 +167,7 @@ function loop() {
     const dt = Math.min((now - last) / 1000, 0.05);
     const mousePosition = input.getMousePosition();
     last = now;
-    renderer.clear();
+    renderer.fillRect(renderer.boundingRect, Color.fromHex("#242b32").withAlpha(0.3));
     renderer.fillRect(Rect.fromCenter(mousePosition, new Vector2(Boid.MOUSE_FEAR_RADIUS * 0.2, Boid.MOUSE_FEAR_RADIUS * 0.2)), Color.green());
     boids.forEach((boid) => {
         boid.update(dt, renderer.boundingRect, mousePosition, boids);

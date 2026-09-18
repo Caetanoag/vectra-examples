@@ -70,8 +70,8 @@ class Boid {
 		const sep = this.separation(others, 90).scale(3);
 		const ali = this.alignment(others, 100).scale(1.0);
 		const coh = this.cohesion(others, 100).scale(0.8);
-
-		const dir = sep.add(ali).add(coh);
+		const wander = (Math.random() - 0.5) * 0.15;
+		const dir = sep.add(ali).add(coh).rotate(wander);
 		if (dir.length < 1e-6) return;
 		if (this.velocity.length < 1e-6) {
 			this.velocity = dir.normalized().scale(200);
@@ -195,7 +195,11 @@ function loop() {
 	const dt = Math.min((now - last) / 1000, 0.05);
 	const mousePosition = input.getMousePosition();
 	last = now;
-	renderer.clear();
+
+	renderer.fillRect(
+		renderer.boundingRect,
+		Color.fromHex("#242b32").withAlpha(0.3),
+	);
 	renderer.fillRect(
 		Rect.fromCenter(
 			mousePosition,
