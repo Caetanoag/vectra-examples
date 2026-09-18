@@ -26,15 +26,17 @@ class Boid {
 	}
 	private separation(others: Boid[], radius: number): Vector2 {
 		let force = new Vector2(0, 0);
+		let count = 0;
 		for (const other of others) {
 			if (other === this) continue;
 			const away = this.position.subtract(other.position);
 			const dist = away.length;
 			if (dist < radius && dist > 1e-6) {
 				force = force.add(away.normalized().scale(1 - dist / radius));
+				count++;
 			}
 		}
-		return force;
+		return count > 0 ? force.scale(1 / count) : new Vector2(0, 0);
 	}
 	private alignment(others: Boid[], radius: number): Vector2 {
 		let avg = new Vector2(0, 0);
@@ -182,7 +184,7 @@ const randomPosition = (): Vector2 => {
 	);
 };
 const boids: Boid[] = [];
-for (let i = 0; i < 10; i++) {
+for (let i = 0; i < 100; i++) {
 	boids.push(new Boid(randomPosition(), randomVelocity()));
 }
 

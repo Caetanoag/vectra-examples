@@ -14,6 +14,7 @@ class Boid {
     }
     separation(others, radius) {
         let force = new Vector2(0, 0);
+        let count = 0;
         for (const other of others) {
             if (other === this)
                 continue;
@@ -21,9 +22,10 @@ class Boid {
             const dist = away.length;
             if (dist < radius && dist > 1e-6) {
                 force = force.add(away.normalized().scale(1 - dist / radius));
+                count++;
             }
         }
-        return force;
+        return count > 0 ? force.scale(1 / count) : new Vector2(0, 0);
     }
     alignment(others, radius) {
         let avg = new Vector2(0, 0);
@@ -156,7 +158,7 @@ const randomPosition = () => {
     return new Vector2(renderer.width * Math.random(), renderer.height * Math.random());
 };
 const boids = [];
-for (let i = 0; i < 10; i++) {
+for (let i = 0; i < 100; i++) {
     boids.push(new Boid(randomPosition(), randomVelocity()));
 }
 let last = performance.now();
