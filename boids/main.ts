@@ -65,7 +65,7 @@ class Boid {
 			.normalized();
 	}
 	private steerFromFlock(others: Boid[], dt: number): void {
-		const sep = this.separation(others, 40).scale(3);
+		const sep = this.separation(others, 90).scale(3);
 		const ali = this.alignment(others, 100).scale(1.0);
 		const coh = this.cohesion(others, 100).scale(0.8);
 
