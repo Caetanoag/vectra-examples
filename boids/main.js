@@ -3,7 +3,7 @@ class Boid {
     position;
     velocity;
     acceleration;
-    static COLOR = Color.black();
+    static COLOR = new Color(Math.random(), Math.random(), Math.random());
     static RADIUS = 10;
     static MOUSE_FEAR_RADIUS = Boid.RADIUS * 10;
     constructor(position, velocity = new Vector2(1, 1), acceleration = new Vector2(0, 0)) {
@@ -48,7 +48,7 @@ class Boid {
         return { v, p };
     }
     steerAwayFromMouse(mouse, rate, dt) {
-        const away = this.position.subtract(mouse); // vetor do rato → boid
+        const away = this.position.subtract(mouse);
         const distance = away.length;
         if (distance >= Boid.MOUSE_FEAR_RADIUS || distance < 1e-6)
             return;
@@ -83,16 +83,24 @@ const canvas = document.querySelector("canvas");
 const renderer = new CanvasRenderer(canvas);
 const input = new InputManager(canvas);
 renderer.setSize(window.innerWidth, window.innerHeight);
-const boid = new Boid(renderer.boundingRect.center, new Vector2(0.5, 0.8).scale(renderer.width));
+const randomVelocity = () => {
+    return new Vector2(Math.random(), Math.random()).scale(renderer.width * 0.7);
+};
+const boids = [];
+for (let i = 0; i < 10; i++) {
+    boids.push(new Boid(renderer.boundingRect.center, randomVelocity()));
+}
 let last = performance.now();
 function loop() {
     const dt = Math.min((performance.now() - last) / 1000, 0.05);
     const mousePosition = input.getMousePosition();
     last = performance.now();
     renderer.clear();
-    boid.draw(renderer);
     renderer.fillRect(Rect.fromCenter(mousePosition, new Vector2(Boid.MOUSE_FEAR_RADIUS * 0.2, Boid.MOUSE_FEAR_RADIUS * 0.2)), Color.green());
-    boid.update(dt, renderer.boundingRect, mousePosition);
+    boids.forEach((boid) => {
+        boid.update(dt, renderer.boundingRect, mousePosition);
+        boid.draw(renderer);
+    });
     requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
