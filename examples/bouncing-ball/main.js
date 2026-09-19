@@ -1,4 +1,4 @@
-import { CanvasRenderer, Circle, Color, InputManager, Rect, Vector2, } from "../../lib/index.js";
+import { CanvasRenderer, Circle, Color, InputManager, Rect, Vector2, } from "../lib/index.js";
 const randomInteger = (min, max) => {
     return Math.trunc(Math.random() * (max - min) + min);
 };

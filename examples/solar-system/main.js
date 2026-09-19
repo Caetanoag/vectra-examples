@@ -1,4 +1,4 @@
-import { CanvasRenderer, Circle, Color, InputManager, Vector2, } from "../../lib/index.js";
+import { CanvasRenderer, Circle, Color, InputManager, Vector2, } from "../lib/index.js";
 const G = 0.5;
 const TRAIL_LENGTH = 900;
 const SUBSTEPS = 4;
