@@ -1,4 +1,4 @@
-import { CanvasRenderer, Color, InputManager, Rect, Vector2, } from "../lib/index.js";
+import { CanvasRenderer, Color, InputManager, Rect, Vector2, } from "../../lib/index.js";
 const canvas = document.querySelector("canvas");
 const renderer = new CanvasRenderer(canvas);
 const input = new InputManager(canvas);

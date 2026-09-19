@@ -1,4 +1,4 @@
-import { Vector2, Rect, Color, CanvasRenderer, Circle, InputManager, } from "../lib/index.js";
+import { CanvasRenderer, Circle, Color, InputManager, Rect, Vector2, } from "../../lib/index.js";
 const randomInteger = (min, max) => {
     return Math.trunc(Math.random() * (max - min) + min);
 };
@@ -153,10 +153,10 @@ window.addEventListener("resize", () => {
 const boundingBox = new Rect(0, 0, renderer.width, renderer.height);
 const particles = [];
 const colors = [
-    Color.black(),
-    Color.red(),
-    Color.green(),
-    Color.blue(),
+    Color.white(),
+    Color.fromRgb(255, 215, 0),
+    Color.fromRgb(0, 255, 255),
+    Color.fromRgb(255, 45, 120),
 ];
 const spatialHash = new SpatialHash(MAX_RADIUS * 2);
 const PARTICLE_COUNT = 3;

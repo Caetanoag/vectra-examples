@@ -4,7 +4,7 @@ import {
 	Color,
 	InputManager,
 	Vector2,
-} from "../lib/index.js";
+} from "../../lib/index.js";
 
 const G = 0.5;
 const TRAIL_LENGTH = 900;
@@ -237,11 +237,11 @@ const sun = new CelestialBody(
 	10000,
 	50,
 	Color.fromRgb(255, 215, 0),
-	"Sol",
+	"Sun",
 );
 const planets = [
 	{
-		name: "Azul",
+		name: "Blue",
 		radius: 150,
 		angle: 0,
 		speed: 1.8,
@@ -250,7 +250,7 @@ const planets = [
 		color: Color.fromRgb(0, 0, 255),
 	},
 	{
-		name: "Vermelho",
+		name: "Red",
 		radius: 250,
 		angle: Math.PI,
 		speed: 1.4,
@@ -259,7 +259,7 @@ const planets = [
 		color: Color.fromRgb(255, 0, 0),
 	},
 	{
-		name: "Verde",
+		name: "Green",
 		radius: 350,
 		angle: Math.PI / 2,
 		speed: 1.35,
@@ -268,7 +268,7 @@ const planets = [
 		color: Color.fromRgb(0, 255, 0),
 	},
 	{
-		name: "Laranja",
+		name: "Orange",
 		radius: 500,
 		angle: 0.6,
 		mass: 12,
@@ -276,7 +276,7 @@ const planets = [
 		color: Color.fromRgb(255, 165, 0),
 	},
 	{
-		name: "Roxo",
+		name: "Purple",
 		radius: 650,
 		angle: 2.1,
 		mass: 9,
@@ -284,7 +284,7 @@ const planets = [
 		color: Color.fromRgb(160, 32, 240),
 	},
 	{
-		name: "Ciano",
+		name: "Cyan",
 		radius: 800,
 		angle: 3.7,
 		mass: 15,
@@ -292,7 +292,7 @@ const planets = [
 		color: Color.fromRgb(0, 255, 255),
 	},
 	{
-		name: "Rosa",
+		name: "Pink",
 		radius: 950,
 		angle: 5.0,
 		mass: 8,
@@ -300,7 +300,7 @@ const planets = [
 		color: Color.fromRgb(255, 20, 147),
 	},
 	{
-		name: "Amarelo",
+		name: "Yellow",
 		radius: 1100,
 		angle: 1.2,
 		mass: 11,
@@ -316,7 +316,7 @@ const planets = [
 		color: Color.fromRgb(255, 105, 180),
 	},
 	{
-		name: "Vermelho-escuro",
+		name: "Dark Red",
 		radius: 1400,
 		angle: 2.8,
 		mass: 13,
@@ -349,7 +349,7 @@ menuToggle.addEventListener("click", () => {
 
 const speedControl = document.createElement("label");
 speedControl.className = "speed";
-speedControl.textContent = "Velocidade: ";
+speedControl.textContent = "Speed: ";
 const speedSelect = document.createElement("select");
 ["1", "2", "5", "10", "20", "100"].forEach((factor) => {
 	const option = document.createElement("option");

@@ -1,0 +1,119 @@
+main {
+	width: 100%;
+	max-width: 1080px;
+}
+header {
+	text-align: center;
+	margin-bottom: 40px;
+}
+header h1 {
+	font-size: 40px;
+	margin: 0 0 10px;
+	letter-spacing: -0.5px;
+}
+header p {
+	color: var(--muted);
+	font-size: 16px;
+	max-width: 640px;
+	margin: 0 auto;
+	line-height: 1.6;
+}
+header .badge {
+	display: inline-block;
+	font-family: monospace;
+	font-size: 13px;
+	color: var(--accent);
+	border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+	border-radius: 999px;
+	padding: 4px 14px;
+	margin-bottom: 16px;
+	letter-spacing: 0.5px;
+}
+
+footer {
+	width: 100%;
+	max-width: 1080px;
+	margin-top: 56px;
+	padding-top: 40px;
+	border-top: 1px solid var(--border);
+}
+.footer-main {
+	display: flex;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 40px;
+}
+.footer-brand {
+	max-width: 340px;
+}
+.footer-logo {
+	font-size: 20px;
+	letter-spacing: -0.3px;
+	color: var(--accent);
+}
+.footer-brand p {
+	color: var(--muted);
+	font-size: 14px;
+	line-height: 1.6;
+	margin: 10px 0 0;
+}
+.footer-brand code {
+	font-family: monospace;
+	font-size: 0.9em;
+	color: var(--text);
+	background: rgba(255, 255, 255, 0.06);
+	border: 1px solid var(--border);
+	border-radius: 4px;
+	padding: 1px 5px;
+}
+.footer-links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 48px;
+}
+.footer-col {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+.footer-col h3 {
+	margin: 0 0 6px;
+	font-size: 12px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.8px;
+	color: var(--muted);
+}
+.footer-col a {
+	font-size: 14px;
+	color: var(--text);
+	text-decoration: none;
+	transition: color 0.15s ease;
+}
+.footer-col a:hover {
+	color: var(--accent);
+}
+.footer-bottom {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 12px;
+	flex-wrap: wrap;
+	margin-top: 40px;
+	padding-top: 16px;
+	border-top: 1px solid var(--border);
+	color: var(--muted);
+	font-size: 13px;
+}
+.footer-bottom p {
+	margin: 0;
+}
+.footer-version {
+	font-family: monospace;
+	font-size: 12px;
+	color: var(--muted);
+	background: rgba(255, 255, 255, 0.06);
+	border: 1px solid var(--border);
+	border-radius: 4px;
+	padding: 2px 8px;
+}

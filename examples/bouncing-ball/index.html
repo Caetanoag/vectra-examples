@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Particles in a Box</title>
+    <script src="../shared/header.js" defer></script>
+    <style>
+        :root {
+            --vt-bg: #0b0f14;
+            --vt-panel: #121820;
+            --vt-panel-hover: #18222d;
+            --vt-border: #223041;
+            --vt-text: #d7e1ea;
+            --vt-muted: #8ba0b4;
+            --vt-accent: #4aa3ff;
+            --vt-header-h: 60px;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            background:
+                radial-gradient(
+                    1200px 600px at 80% -10%,
+                    color-mix(in srgb, var(--vt-accent, #4aa3ff) 12%, transparent),
+                    transparent
+                ),
+                var(--vt-bg, #0b0f14);
+            color: var(--vt-text, #d7e1ea);
+            font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+            padding: calc(var(--vt-header-h, 60px) + 24px) 16px 32px;
+        }
+
+        canvas {
+            display: block;
+            touch-action: none;
+            max-width: 100%;
+        }
+
+        .control-panel {
+            width: min(420px, 90vw);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background-color: var(--vt-panel, #121820);
+            border: 1px solid var(--vt-border, #223041);
+            border-radius: 10px;
+            padding: 18px;
+            transition: border-color 0.15s ease, background 0.15s ease;
+        }
+
+        .control-panel:hover {
+            border-color: color-mix(in srgb, var(--vt-accent, #4aa3ff) 30%, var(--vt-border, #223041));
+        }
+
+        .panel-title {
+            font-size: 18px;
+            margin: 0;
+            letter-spacing: -0.3px;
+        }
+
+        .panel-desc {
+            margin: 0 0 2px;
+            color: var(--vt-muted, #8ba0b4);
+            font-size: 14px;
+            line-height: 1.55;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .control-group label {
+            font-size: 13px;
+            color: var(--vt-muted, #8ba0b4);
+        }
+
+        .control-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-row input[type="range"] {
+            flex: 1;
+            accent-color: var(--vt-accent, #4aa3ff);
+        }
+
+        .control-row output {
+            min-width: 44px;
+            text-align: center;
+            font-family: monospace;
+            font-size: 11px;
+            color: var(--vt-muted, #8ba0b4);
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--vt-border, #223041);
+            border-radius: 4px;
+            padding: 2px 8px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toggle-row input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--vt-accent, #4aa3ff);
+        }
+
+        .toggle-row label {
+            margin: 0;
+        }
+
+        .buttons-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        button {
+            background-color: rgba(255, 255, 255, 0.06);
+            color: var(--vt-text, #d7e1ea);
+            border: 1px solid var(--vt-border, #223041);
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-family: monospace;
+            cursor: pointer;
+            transition: border-color 0.15s ease, background 0.15s ease;
+        }
+
+        button:hover {
+            background-color: var(--vt-panel-hover, #18222d);
+            border-color: color-mix(in srgb, var(--vt-accent, #4aa3ff) 55%, var(--vt-border, #223041));
+        }
+
+        .apply-button {
+            background-color: var(--vt-accent, #4aa3ff);
+            color: #fff;
+            border-color: var(--vt-accent, #4aa3ff);
+            font-weight: 500;
+        }
+
+        .apply-button:hover {
+            background-color: var(--vt-accent, #4aa3ff);
+            border-color: var(--vt-accent, #4aa3ff);
+            filter: brightness(1.1);
+        }
+
+        .color-button {
+            width: 30px;
+            height: 30px;
+            padding: 0;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="bouncing-canvas"></canvas>
+    <div class="control-panel">
+        <h2 class="panel-title">Controls</h2>
+        <p class="panel-desc">Adjust the particle physics and choose the color of the simulation.</p>
+        <div class="control-group">
+            <label for="elasticity">Elasticity (e):</label>
+            <div class="control-row">
+                <input type="range" id="elasticity" min="0" max="1" step="0.01" value="0.92">
+                <output id="elasticity-value">0.92</output>
+            </div>
+        </div>
+        <div class="control-group">
+            <label for="gravity">Gravity:</label>
+            <div class="control-row">
+                <input type="range" id="gravity" min="0.2" max="3" step="0.1" value="2">
+                <output id="gravity-value">2</output>
+            </div>
+        </div>
+        <button type="button" class="apply-button" id="apply-constants">Apply</button>
+        <div class="control-group">
+            <div class="toggle-row">
+                <input type="checkbox" id="trails-toggle">
+                <label for="trails-toggle">Trails</label>
+            </div>
+            <div class="control-row" id="trails-length-row" hidden>
+                <input type="range" id="trails-length" min="1" max="10" step="1" value="4">
+                <output id="trails-length-value">4</output>
+            </div>
+        </div>
+        <div class="buttons-row">
+            <button type="button" id="clear-particles">Clear</button>
+            <button type="button" id="add-particle">Add</button>
+        </div>
+        <div class="buttons-row">
+            <button type="button" class="color-button" id="color-white" style="background-color:#ffffff" title="White"></button>
+            <button type="button" class="color-button" id="color-yellow" style="background-color:#ffd700" title="Yellow"></button>
+            <button type="button" class="color-button" id="color-cyan" style="background-color:#00ffff" title="Cyan"></button>
+            <button type="button" class="color-button" id="color-pink" style="background-color:#ff2d78" title="Pink"></button>
+        </div>
+    </div>
+    <script type="module" src="./main.js"></script>
+</body>
+</html>

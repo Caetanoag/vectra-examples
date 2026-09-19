@@ -1,11 +1,11 @@
 import {
-	Vector2,
-	Rect,
-	Color,
 	CanvasRenderer,
 	Circle,
+	Color,
 	InputManager,
-} from "../lib/index.js";
+	Rect,
+	Vector2,
+} from "../../lib/index.js";
 
 const randomInteger = (min: number, max: number): number => {
 	return Math.trunc(Math.random() * (max - min) + min);
@@ -208,10 +208,10 @@ window.addEventListener("resize", () => {
 const boundingBox = new Rect(0, 0, renderer.width, renderer.height);
 const particles: Particle[] = [];
 const colors: Color[] = [
-	Color.black(),
-	Color.red(),
-	Color.green(),
-	Color.blue(),
+	Color.white(),
+	Color.fromRgb(255, 215, 0),
+	Color.fromRgb(0, 255, 255),
+	Color.fromRgb(255, 45, 120),
 ];
 
 const spatialHash = new SpatialHash(MAX_RADIUS * 2);
@@ -241,7 +241,9 @@ const gravityInput = document.querySelector("#gravity") as HTMLInputElement;
 const elasticityValue = document.querySelector(
 	"#elasticity-value",
 ) as HTMLOutputElement;
-const gravityValue = document.querySelector("#gravity-value") as HTMLOutputElement;
+const gravityValue = document.querySelector(
+	"#gravity-value",
+) as HTMLOutputElement;
 const applyConstantsButton = document.querySelector(
 	"#apply-constants",
 ) as HTMLButtonElement;
@@ -251,12 +253,15 @@ const clearParticlesButton = document.querySelector(
 const addParticleButton = document.querySelector(
 	"#add-particle",
 ) as HTMLButtonElement;
-const colorButtons = document.querySelectorAll<HTMLButtonElement>(
-	".color-button",
-);
+const colorButtons =
+	document.querySelectorAll<HTMLButtonElement>(".color-button");
 
-const trailsToggle = document.querySelector("#trails-toggle") as HTMLInputElement;
-const trailsLength = document.querySelector("#trails-length") as HTMLInputElement;
+const trailsToggle = document.querySelector(
+	"#trails-toggle",
+) as HTMLInputElement;
+const trailsLength = document.querySelector(
+	"#trails-length",
+) as HTMLInputElement;
 const trailsLengthValue = document.querySelector(
 	"#trails-length-value",
 ) as HTMLOutputElement;

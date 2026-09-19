@@ -1,151 +1,58 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vectra Concepts</title>
-    <style>
-        :root {
-            --bg: #0b0f14;
-            --panel: #121820;
-            --panel-hover: #18222d;
-            --border: #223041;
-            --text: #d7e1ea;
-            --muted: #8ba0b4;
-            --accent: #4aa3ff;
-        }
-        * {
-            box-sizing: border-box;
-        }
-        body {
-            margin: 0;
-            min-height: 100vh;
-            background:
-                radial-gradient(1200px 600px at 80% -10%, color-mix(in srgb, var(--accent) 12%, transparent), transparent),
-                var(--bg);
-            color: var(--text);
-            font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 48px 24px;
-        }
-        main {
-            width: 100%;
-            max-width: 1080px;
-        }
-        header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-        header .badge {
-            display: inline-block;
-            font-family: monospace;
-            font-size: 13px;
-            color: var(--accent);
-            border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
-            border-radius: 999px;
-            padding: 4px 14px;
-            margin-bottom: 16px;
-            letter-spacing: 0.5px;
-        }
-        header h1 {
-            font-size: 40px;
-            margin: 0 0 10px;
-            letter-spacing: -0.5px;
-        }
-        header p {
-            color: var(--muted);
-            font-size: 16px;
-            max-width: 640px;
-            margin: 0 auto;
-            line-height: 1.6;
-        }
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
-            margin-top: 8px;
-        }
-        .card {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            background: var(--panel);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 18px;
-            text-decoration: none;
-            color: inherit;
-            transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
-        }
-        .card:hover {
-            transform: translateY(-2px);
-            border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
-            background: var(--panel-hover);
-        }
-        .card h2 {
-            font-size: 18px;
-            margin: 0;
-        }
-        .card p {
-            color: var(--muted);
-            font-size: 14px;
-            line-height: 1.55;
-            margin: 0;
-            flex: 1;
-        }
-        .card .tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-        }
-        .card .tag {
-            font-family: monospace;
-            font-size: 11px;
-            color: var(--muted);
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            padding: 2px 8px;
-        }
-        .card .open {
-            font-size: 13px;
-            color: var(--accent);
-            font-weight: 500;
-        }
-        @media (max-width: 960px) {
-            .grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-        @media (max-width: 600px) {
-            .grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="styles/main.css">
 </head>
 <body>
     <main>
         <header>
-            <span class="badge">Exemplos de aplicação</span>
+            <span class="badge">Application examples</span>
             <h1>Vectra Examples</h1>
             <p>
-                Página dedicada a aplicações construídas com a Vectra, uma biblioteca
-                de gráficos 2D para web. Cada card abaixo é uma demonstração
-                independente mostrando na prática o que dá para fazer com ela.
+                A page dedicated to applications built with Vectra, a 2D graphics
+                library for the web. Each card below is a standalone demo showing
+                in practice what you can do with it.
             </p>
         </header>
         <div id="grid" class="grid"></div>
     </main>
+    <footer>
+        <div class="footer-main">
+            <div class="footer-brand">
+                <strong class="footer-logo">Vectra</strong>
+                <p>
+                    2D graphics library for the web.
+                </p>
+            </div>
+            <nav class="footer-links" aria-label="Footer links">
+                <div class="footer-col">
+                    <h3>Examples</h3>
+                    <a href="./examples/solar-system/index.html">Solar System</a>
+                    <a href="./examples/bouncing-ball/index.html">Particles in a Box</a>
+                    <a href="./examples/boids/index.html">Boids</a>
+                </div>
+                <div class="footer-col">
+                    <h3>Source code</h3>
+                    <a href="https://github.com/caetanoag/vectra">Vectra (engine)</a>
+                    <a href="https://github.com/caetanoag/vectra-examples">Vectra Examples</a>
+                </div>
+            </nav>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 Vectra Engine, developed by Caetanoag.</p>
+            <span class="footer-version">Vectra 0.1.0</span>
+        </div>
+    </footer>
     <script>
         const EXAMPLES = [
             {
-                title: "Sistema Solar",
+                title: "Solar System",
                 description:
-                    "Simulação gravitacional N-corpos com planetas em órbita, câmera com pan e zoom, colisões elásticas e rastros de órbita.",
-                href: "./solar-system/index.html",
+                    "N-body gravitational simulation with orbiting planets, camera pan & zoom, elastic collisions and orbit trails.",
+                href: "./examples/solar-system/index.html",
                 tags: [
                     "CanvasRenderer",
                     "Vector2",
@@ -156,22 +63,23 @@
                 ],
             },
             {
-                title: "Particulas em uma Caixa",
+                title: "Particles in a Box",
                 description:
-                    "Simulação de particulas em uma caixa fechada, demonstrando calculos de normal, colisão de objetos e movimentação 2D",
-                href: "./bouncing-ball/index.html",
+                    "Simulation of particles in a closed box, demonstrating normal calculations, object collision and 2D movement",
+                href: "./examples/bouncing-ball/index.html",
                 tags: [
                     "CanvasRenderer",
                     "Vector2",
                     "Circle",
                     "Color",
+                    "Rect",
                     "Vectra 0.1.0"
                 ],
             },
             {
                 title: "Boids",
-                description: "Simulação de organismos vivos com 3 regras simples: Separação, Alinhamento e Coesão. Eles atuam como rebanhos e se movimentam pela tela de forma autonoma",
-                href:"./boids/index.html",
+                description: "Simulation of living organisms with 3 simple rules: Separation, Alignment and Cohesion. They act as a group and move autonomously across the screen",
+                href:"./examples/boids/index.html",
                 tags: [
                     "CanvasRenderer",
                     "Vector2",
@@ -204,7 +112,7 @@
 
             const open = document.createElement("span");
             open.className = "open";
-            open.textContent = "Abrir exemplo →";
+            open.textContent = "Open example →";
 
             card.appendChild(title);
             card.appendChild(description);
