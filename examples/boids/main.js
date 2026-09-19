@@ -102,9 +102,9 @@ class Boid {
             .normalized();
     }
     steerFromFlock(others, dt) {
-        const sep = this.separation(others, 40).scale(Config.boid.weights.separation / 10);
-        const ali = this.alignment(others, 80).scale(Config.boid.weights.alignment / 10);
-        const coh = this.cohesion(others, 80).scale(Config.boid.weights.cohesion / 10);
+        const sep = this.separation(others, 40).scale(Config.boid.weights.separation);
+        const ali = this.alignment(others, 80).scale(Config.boid.weights.alignment);
+        const coh = this.cohesion(others, 80).scale(Config.boid.weights.cohesion);
         const wander = (Math.random() - 0.5) * Boid.WANDER_STRENGTH;
         const dir = sep.add(ali).add(coh).rotate(wander);
         if (dir.length < 1e-6) {
