@@ -6,6 +6,12 @@ import {
 	Vector2,
 } from "../lib/index.js";
 
+const canvas = document.querySelector("canvas");
+const renderer = new CanvasRenderer(canvas as HTMLCanvasElement);
+const input = new InputManager(canvas as HTMLElement);
+renderer.setSize(window.innerWidth, window.innerHeight);
+const boid_radius = renderer.width * 0.005;
+const mouse_fear_radius = boid_radius * 3;
 class Boid {
 	public position: Vector2;
 	public velocity: Vector2;
@@ -13,12 +19,11 @@ class Boid {
 
 	protected color: Color;
 	protected radius: number;
-	protected trail: { pos: Vector2; angle: number }[] = [];
 
-	protected static readonly DEFAULT_RADIUS = 10;
+	protected static readonly DEFAULT_RADIUS = boid_radius;
 	protected static readonly WANDER_STRENGTH = 0.05;
 	public static readonly MOUSE_FEAR_RADIUS = 100;
-	public static readonly PREDATOR_FEAR_RADIUS = 180;
+	public static readonly PREDATOR_FEAR_RADIUS = mouse_fear_radius;
 	private readonly SPECIES: number;
 	constructor(
 		position: Vector2,
@@ -211,7 +216,7 @@ class Boid {
 				dt,
 			);
 		this.steerAwayFromPoint(mouse, Boid.MOUSE_FEAR_RADIUS, 8, dt);
-		this.steerAwayFromWalls(box, 200, 8, dt);
+		this.steerAwayFromWalls(box, this.radius * 8, 8, dt);
 
 		const { v, p } = this.bounceFromWalls(dt, box);
 		this.velocity = v;
@@ -225,7 +230,7 @@ class Boid {
 }
 
 class Predator extends Boid {
-	private static readonly PREY_CHASE_RATE = 3;
+	private static readonly PREY_CHASE_RATE = 15;
 
 	constructor(
 		position: Vector2,
@@ -282,11 +287,6 @@ class Predator extends Boid {
 	}
 }
 
-const canvas = document.querySelector("canvas");
-const renderer = new CanvasRenderer(canvas as HTMLCanvasElement);
-const input = new InputManager(canvas as HTMLElement);
-renderer.setSize(window.innerWidth, window.innerHeight);
-
 const randomVelocity = (speed: number): Vector2 => {
 	const angle = Math.random() * Math.PI * 2;
 	return new Vector2(speed, 0).rotate(angle);
@@ -302,7 +302,7 @@ for (let i = 0; i < 100; i++) {
 
 const predator = new Predator(
 	randomPosition(),
-	randomVelocity(renderer.width * 0.4).scale(0.2),
+	randomVelocity(renderer.width * 0.2).scale(0.95),
 );
 
 let last = performance.now();

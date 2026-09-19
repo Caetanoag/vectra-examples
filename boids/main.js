@@ -1,15 +1,20 @@
 import { CanvasRenderer, Color, InputManager, Rect, Vector2, } from "../lib/index.js";
+const canvas = document.querySelector("canvas");
+const renderer = new CanvasRenderer(canvas);
+const input = new InputManager(canvas);
+renderer.setSize(window.innerWidth, window.innerHeight);
+const boid_radius = renderer.width * 0.005;
+const mouse_fear_radius = boid_radius * 3;
 class Boid {
     position;
     velocity;
     acceleration;
     color;
     radius;
-    trail = [];
-    static DEFAULT_RADIUS = 10;
+    static DEFAULT_RADIUS = boid_radius;
     static WANDER_STRENGTH = 0.05;
     static MOUSE_FEAR_RADIUS = 100;
-    static PREDATOR_FEAR_RADIUS = 180;
+    static PREDATOR_FEAR_RADIUS = mouse_fear_radius;
     SPECIES;
     constructor(position, velocity = new Vector2(1, 1), acceleration = new Vector2(0, 0)) {
         this.position = position;
@@ -157,7 +162,7 @@ class Boid {
         if (predator)
             this.steerAwayFromPoint(predator.position, Boid.PREDATOR_FEAR_RADIUS, 6, dt);
         this.steerAwayFromPoint(mouse, Boid.MOUSE_FEAR_RADIUS, 8, dt);
-        this.steerAwayFromWalls(box, 200, 8, dt);
+        this.steerAwayFromWalls(box, this.radius * 8, 8, dt);
         const { v, p } = this.bounceFromWalls(dt, box);
         this.velocity = v;
         this.position = p;
@@ -168,7 +173,7 @@ class Boid {
     }
 }
 class Predator extends Boid {
-    static PREY_CHASE_RATE = 3;
+    static PREY_CHASE_RATE = 15;
     constructor(position, velocity = new Vector2(1, 1), acceleration = new Vector2(0, 0)) {
         super(position, velocity, acceleration);
         this.color = Color.fromHex("#ff4455");
@@ -208,10 +213,6 @@ class Predator extends Boid {
         this.acceleration = new Vector2(0, 0);
     }
 }
-const canvas = document.querySelector("canvas");
-const renderer = new CanvasRenderer(canvas);
-const input = new InputManager(canvas);
-renderer.setSize(window.innerWidth, window.innerHeight);
 const randomVelocity = (speed) => {
     const angle = Math.random() * Math.PI * 2;
     return new Vector2(speed, 0).rotate(angle);
@@ -222,7 +223,7 @@ for (let i = 0; i < 100; i++) {
     const speed = renderer.width * (0.15 + Math.random() * 0.2);
     boids.push(new Boid(randomPosition(), randomVelocity(speed)));
 }
-const predator = new Predator(randomPosition(), randomVelocity(renderer.width * 0.4).scale(0.2));
+const predator = new Predator(randomPosition(), randomVelocity(renderer.width * 0.2).scale(0.95));
 let last = performance.now();
 function loop(now) {
     const dt = Math.min((now - last) / 1000, 0.05);
