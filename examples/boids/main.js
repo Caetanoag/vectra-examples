@@ -1,20 +1,35 @@
-import { CanvasRenderer, Color, InputManager, Rect, Vector2, } from "../../lib/index.js";
+import { CanvasRenderer, Color, InputManager, Rect, Vector2, } from "../lib/index.js";
 const canvas = document.querySelector("canvas");
 const renderer = new CanvasRenderer(canvas);
 const input = new InputManager(canvas);
 renderer.setSize(window.innerWidth, window.innerHeight);
-const boid_radius = renderer.width * 0.005;
-const mouse_fear_radius = boid_radius * 3;
+const Config = {
+    boid: {
+        radius: renderer.width * 0.005,
+        wander: 0.005,
+        get mouse_fear_radius() {
+            return this.radius * 10;
+        },
+        get predator_fear_radius() {
+            return this.radius * 10;
+        },
+        weights: {
+            separation: 3,
+            aligment: 1,
+            coesion: 0.8,
+        },
+    },
+};
 class Boid {
     position;
     velocity;
     acceleration;
     color;
     radius;
-    static DEFAULT_RADIUS = boid_radius;
-    static WANDER_STRENGTH = 0.05;
-    static MOUSE_FEAR_RADIUS = 100;
-    static PREDATOR_FEAR_RADIUS = mouse_fear_radius;
+    static DEFAULT_RADIUS = Config.boid.radius;
+    static WANDER_STRENGTH = Config.boid.wander;
+    static MOUSE_FEAR_RADIUS = Config.boid.mouse_fear_radius;
+    static PREDATOR_FEAR_RADIUS = Config.boid.predator_fear_radius;
     SPECIES;
     constructor(position, velocity = new Vector2(1, 1), acceleration = new Vector2(0, 0)) {
         this.position = position;
@@ -80,9 +95,9 @@ class Boid {
             .normalized();
     }
     steerFromFlock(others, dt) {
-        const sep = this.separation(others, 40).scale(3);
-        const ali = this.alignment(others, 80).scale(1.0);
-        const coh = this.cohesion(others, 80).scale(0.8);
+        const sep = this.separation(others, 40).scale(Config.boid.weights.separation);
+        const ali = this.alignment(others, 80).scale(Config.boid.weights.aligment);
+        const coh = this.cohesion(others, 80).scale(Config.boid.weights.coesion);
         const wander = (Math.random() - 0.5) * Boid.WANDER_STRENGTH;
         const dir = sep.add(ali).add(coh).rotate(wander);
         if (dir.length < 1e-6) {
@@ -230,7 +245,7 @@ function loop(now) {
     const mousePosition = input.getMousePosition();
     last = now;
     renderer.fillRect(renderer.boundingRect, Color.fromHex("#242b32").withAlpha(0.35));
-    renderer.fillRect(Rect.fromCenter(mousePosition, new Vector2(Boid.MOUSE_FEAR_RADIUS * 0.2, Boid.MOUSE_FEAR_RADIUS * 0.2)), Color.green());
+    renderer.fillRect(Rect.fromCenter(mousePosition, new Vector2(Config.boid.mouse_fear_radius * 0.2, Config.boid.mouse_fear_radius * 0.2)), Color.green());
     for (const boid of boids) {
         boid.update(dt, renderer.boundingRect, mousePosition, boids, predator);
     }

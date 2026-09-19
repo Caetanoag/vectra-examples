@@ -10,8 +10,25 @@ const canvas = document.querySelector("canvas");
 const renderer = new CanvasRenderer(canvas as HTMLCanvasElement);
 const input = new InputManager(canvas as HTMLElement);
 renderer.setSize(window.innerWidth, window.innerHeight);
-const boid_radius = renderer.width * 0.005;
-const mouse_fear_radius = boid_radius * 3;
+
+const Config = {
+	boid: {
+		radius: renderer.width * 0.005,
+		wander: 0.005,
+		get mouse_fear_radius() {
+			return this.radius * 10;
+		},
+		get predator_fear_radius() {
+			return this.radius * 10;
+		},
+		weights: {
+			separation: 3,
+			aligment: 1,
+			coesion: 0.8,
+		},
+	},
+};
+
 class Boid {
 	public position: Vector2;
 	public velocity: Vector2;
@@ -20,10 +37,11 @@ class Boid {
 	protected color: Color;
 	protected radius: number;
 
-	protected static readonly DEFAULT_RADIUS = boid_radius;
-	protected static readonly WANDER_STRENGTH = 0.05;
-	public static readonly MOUSE_FEAR_RADIUS = 100;
-	public static readonly PREDATOR_FEAR_RADIUS = mouse_fear_radius;
+	protected static readonly DEFAULT_RADIUS = Config.boid.radius;
+	protected static readonly WANDER_STRENGTH = Config.boid.wander;
+	public static readonly MOUSE_FEAR_RADIUS = Config.boid.mouse_fear_radius;
+	public static readonly PREDATOR_FEAR_RADIUS =
+		Config.boid.predator_fear_radius;
 	private readonly SPECIES: number;
 	constructor(
 		position: Vector2,
@@ -91,9 +109,11 @@ class Boid {
 	}
 
 	protected steerFromFlock(others: Boid[], dt: number): void {
-		const sep = this.separation(others, 40).scale(3);
-		const ali = this.alignment(others, 80).scale(1.0);
-		const coh = this.cohesion(others, 80).scale(0.8);
+		const sep = this.separation(others, 40).scale(
+			Config.boid.weights.separation,
+		);
+		const ali = this.alignment(others, 80).scale(Config.boid.weights.aligment);
+		const coh = this.cohesion(others, 80).scale(Config.boid.weights.coesion);
 
 		const wander = (Math.random() - 0.5) * Boid.WANDER_STRENGTH;
 		const dir = sep.add(ali).add(coh).rotate(wander);
@@ -319,7 +339,10 @@ function loop(now: number) {
 	renderer.fillRect(
 		Rect.fromCenter(
 			mousePosition,
-			new Vector2(Boid.MOUSE_FEAR_RADIUS * 0.2, Boid.MOUSE_FEAR_RADIUS * 0.2),
+			new Vector2(
+				Config.boid.mouse_fear_radius * 0.2,
+				Config.boid.mouse_fear_radius * 0.2,
+			),
 		),
 		Color.green(),
 	);
