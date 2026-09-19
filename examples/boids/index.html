@@ -16,10 +16,12 @@
             --vt-accent: #4aa3ff;
             --vt-header-h: 60px;
         }
-
         body {
             margin: 0;
             background-color: var(--vt-bg, #0b0f14);
+            display: flex;
+            flex-direction: column;
+            align-items: center;;
         }
 
         canvas {
@@ -27,12 +29,117 @@
             touch-action: none;
             cursor: none;
         }
+
+        .control-panel {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background-color: var(--vt-panel, #121820);
+            border: 1px solid var(--vt-border, #223041);
+            border-radius: 10px;
+            padding: 18px;
+            transition: border-color 0.15s ease, background 0.15s ease;
+        }
+
+        .control-panel:hover {
+            border-color: color-mix(in srgb, var(--vt-accent, #4aa3ff) 30%, var(--vt-border, #223041));
+        }
+
+        .panel-title {
+            color: white;
+            font-size: 25px;
+            margin: 0;
+            letter-spacing: -0.3px;
+        }
+
+        .panel-desc {
+            margin: 0 0 2px;
+            color: var(--vt-muted, #8ba0b4);
+            font-size: 18px;
+            line-height: 1.55;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .control-group label {
+            font-size: 22px;
+            color: var(--vt-muted, #8ba0b4);
+        }
+
+        .control-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-row input[type="range"] {
+            flex: 1;
+            accent-color: var(--vt-accent, #4aa3ff);
+        }
+
+        .control-row output {
+            min-width: 44px;
+            text-align: center;
+            font-family: monospace;
+            font-size: 19px;
+            color: var(--vt-muted, #8ba0b4);
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--vt-border, #223041);
+            border-radius: 4px;
+            padding: 2px 8px;
+            font-variant-numeric: tabular-nums;
+        }
     </style>
 </head>
 <body>
     <canvas></canvas>
-    <div class="control">
-        
+    <div class="control-panel">
+        <h2 class="panel-title">Controls</h2>
+        <p class="panel-desc">
+            Adjust the amount of boids, the size of the predator and the weight
+            of each flocking rule. Rule weights are integer values divided by 10.
+        </p>
+        <div class="control-group">
+            <label for="boid-quantity">Boids:</label>
+            <div class="control-row">
+                <input type="range" id="boid-quantity" min="0" max="300" step="1" value="150">
+                <output id="boid-quantity-value">150</output>
+            </div>
+        </div>
+        <div class="control-group">
+            <label for="predator-size">Predator size:</label>
+            <div class="control-row">
+                <input type="range" id="predator-size" min="1" max="5" step="0.1" value="2">
+                <output id="predator-size-value">2</output>
+            </div>
+        </div>
+        <div class="control-group">
+            <label for="separation-weight">Separation (÷10):</label>
+            <div class="control-row">
+                <input type="range" id="separation-weight" min="0" max="50" step="1" value="30">
+                <output id="separation-weight-value">30</output>
+            </div>
+        </div>
+        <div class="control-group">
+            <label for="alignment-weight">Alignment (÷10):</label>
+            <div class="control-row">
+                <input type="range" id="alignment-weight" min="0" max="50" step="1" value="10">
+                <output id="alignment-weight-value">10</output>
+            </div>
+        </div>
+        <div class="control-group">
+            <label for="cohesion-weight">Cohesion (÷10):</label>
+            <div class="control-row">
+                <input type="range" id="cohesion-weight" min="0" max="50" step="1" value="8">
+                <output id="cohesion-weight-value">8</output>
+            </div>
+        </div>
     </div>
     <script type="module" src="main.js"></script>
 </body>

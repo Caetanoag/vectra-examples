@@ -1,23 +1,29 @@
 import { CanvasRenderer, Color, InputManager, Rect, Vector2, } from "../lib/index.js";
+/** Height of the shared header (--vt-header-h token from index.html) so the canvas fits below it. */
+const HEADER_HEIGHT = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--vt-header-h"), 10) || 0;
 const canvas = document.querySelector("canvas");
 const renderer = new CanvasRenderer(canvas);
 const input = new InputManager(canvas);
-renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setSize(window.innerWidth, window.innerHeight - HEADER_HEIGHT);
 const Config = {
     boid: {
+        quantity: 150,
         radius: renderer.width * 0.005,
         wander: 0.005,
         get mouse_fear_radius() {
             return this.radius * 10;
         },
         get predator_fear_radius() {
-            return this.radius * 10;
+            return Config.predator.radius_ratio * this.radius * 10;
         },
         weights: {
-            separation: 3,
-            aligment: 1,
-            coesion: 0.8,
+            separation: 30,
+            alignment: 10,
+            cohesion: 8,
         },
+    },
+    predator: {
+        radius_ratio: 2,
     },
 };
 class Boid {
@@ -95,9 +101,9 @@ class Boid {
             .normalized();
     }
     steerFromFlock(others, dt) {
-        const sep = this.separation(others, 40).scale(Config.boid.weights.separation);
-        const ali = this.alignment(others, 80).scale(Config.boid.weights.aligment);
-        const coh = this.cohesion(others, 80).scale(Config.boid.weights.coesion);
+        const sep = this.separation(others, 40).scale(Config.boid.weights.separation / 10);
+        const ali = this.alignment(others, 80).scale(Config.boid.weights.alignment / 10);
+        const coh = this.cohesion(others, 80).scale(Config.boid.weights.cohesion / 10);
         const wander = (Math.random() - 0.5) * Boid.WANDER_STRENGTH;
         const dir = sep.add(ali).add(coh).rotate(wander);
         if (dir.length < 1e-6) {
@@ -186,13 +192,16 @@ class Boid {
     draw(renderer) {
         this.drawBody(renderer, this.position, this.velocity.angle, this.color);
     }
+    setRadius(radius) {
+        this.radius = radius;
+    }
 }
 class Predator extends Boid {
     static PREY_CHASE_RATE = 15;
     constructor(position, velocity = new Vector2(1, 1), acceleration = new Vector2(0, 0)) {
         super(position, velocity, acceleration);
         this.color = Color.fromHex("#ff4455");
-        this.radius = Boid.DEFAULT_RADIUS * 1.8;
+        this.radius = Config.boid.radius * Config.predator.radius_ratio;
     }
     steerTowardPrey(prey, rate, dt) {
         let nearest = null;
@@ -234,11 +243,57 @@ const randomVelocity = (speed) => {
 };
 const randomPosition = () => new Vector2(renderer.width * Math.random(), renderer.height * Math.random());
 const boids = [];
-for (let i = 0; i < 100; i++) {
+const createBoid = () => {
     const speed = renderer.width * (0.15 + Math.random() * 0.2);
-    boids.push(new Boid(randomPosition(), randomVelocity(speed)));
+    return new Boid(randomPosition(), randomVelocity(speed));
+};
+for (let i = 0; i < Config.boid.quantity; i++) {
+    boids.push(createBoid());
 }
 const predator = new Predator(randomPosition(), randomVelocity(renderer.width * 0.2).scale(0.95));
+const boidQuantityInput = document.querySelector("#boid-quantity");
+const boidQuantityValue = document.querySelector("#boid-quantity-value");
+const predatorSizeInput = document.querySelector("#predator-size");
+const predatorSizeValue = document.querySelector("#predator-size-value");
+const separationInput = document.querySelector("#separation-weight");
+const separationValue = document.querySelector("#separation-weight-value");
+const alignmentInput = document.querySelector("#alignment-weight");
+const alignmentValue = document.querySelector("#alignment-weight-value");
+const cohesionInput = document.querySelector("#cohesion-weight");
+const cohesionValue = document.querySelector("#cohesion-weight-value");
+const syncBoidQuantity = () => {
+    const target = Math.max(Number.parseInt(boidQuantityInput.value, 10), 0);
+    Config.boid.quantity = target;
+    while (boids.length < target) {
+        boids.push(createBoid());
+    }
+    while (boids.length > target) {
+        boids.pop();
+    }
+    boidQuantityValue.value = String(target);
+};
+const syncPredatorSize = () => {
+    const ratio = Number.parseFloat(predatorSizeInput.value);
+    Config.predator.radius_ratio = ratio;
+    predator.setRadius(Config.boid.radius * ratio);
+    predatorSizeValue.value = String(ratio);
+};
+const syncWeights = () => {
+    Config.boid.weights.separation = Number.parseInt(separationInput.value, 10);
+    Config.boid.weights.alignment = Number.parseInt(alignmentInput.value, 10);
+    Config.boid.weights.cohesion = Number.parseInt(cohesionInput.value, 10);
+    separationValue.value = separationInput.value;
+    alignmentValue.value = alignmentInput.value;
+    cohesionValue.value = cohesionInput.value;
+};
+boidQuantityInput.addEventListener("input", syncBoidQuantity);
+predatorSizeInput.addEventListener("input", syncPredatorSize);
+separationInput.addEventListener("input", syncWeights);
+alignmentInput.addEventListener("input", syncWeights);
+cohesionInput.addEventListener("input", syncWeights);
+syncBoidQuantity();
+syncPredatorSize();
+syncWeights();
 let last = performance.now();
 function loop(now) {
     const dt = Math.min((now - last) / 1000, 0.05);

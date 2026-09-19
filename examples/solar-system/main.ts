@@ -6,6 +6,10 @@ import {
 	Vector2,
 } from "../lib/index.js";
 
+/** Height of the shared header (--vt-header-h token from index.html) so the canvas fits below it. */
+const HEADER_HEIGHT =
+	parseInt(getComputedStyle(document.documentElement).getPropertyValue("--vt-header-h")) || 0;
+
 const G = 0.5;
 const TRAIL_LENGTH = 900;
 const SUBSTEPS = 4;
@@ -143,7 +147,7 @@ const resolveCollision = (
 const renderer = new CanvasRenderer(
 	document.querySelector("canvas") as HTMLCanvasElement,
 );
-renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setSize(window.innerWidth, window.innerHeight - HEADER_HEIGHT);
 let center = new Vector2(renderer.width / 2, renderer.height / 2);
 
 const input = new InputManager(renderer.canvas);
@@ -479,7 +483,7 @@ const loop = () => {
 	requestAnimationFrame(loop);
 };
 window.addEventListener("resize", () => {
-	renderer.setSize(window.innerWidth, window.innerHeight);
+	renderer.setSize(window.innerWidth, window.innerHeight - HEADER_HEIGHT);
 	center = new Vector2(renderer.width / 2, renderer.height / 2);
 	starField = buildStarField();
 });

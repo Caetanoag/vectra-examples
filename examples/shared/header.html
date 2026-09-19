@@ -7,6 +7,12 @@
     loads the header (all examples live under examples/<name>/).
     This block also defines the Vectra brand tokens (--vt-*), mirroring
     styles/vars.css from the landing page so examples use the same colors.
+
+    Layout contract: the header lives in the document flow (position: sticky)
+    and occupies its own space at the top of the page, so content below it —
+    including full-screen canvases — is never overlapped. Examples that want the
+    canvas to fill the remaining viewport should size it to
+    calc(100vh - var(--vt-header-h)).
 -->
 <style>
     :root {
@@ -21,10 +27,11 @@
     }
 
     .vectra-header {
-        position: fixed;
+        position: sticky;
         top: 0;
         left: 0;
         right: 0;
+        width: 100%;
         z-index: 1000;
         height: var(--vt-header-h);
         box-sizing: border-box;

@@ -1,4 +1,6 @@
 import { CanvasRenderer, Circle, Color, InputManager, Rect, Vector2, } from "../lib/index.js";
+/** Height of the shared header (--vt-header-h token from index.html) so the canvas fits below it. */
+const HEADER_HEIGHT = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--vt-header-h")) || 0;
 const randomInteger = (min, max) => {
     return Math.trunc(Math.random() * (max - min) + min);
 };
@@ -146,9 +148,9 @@ class Particle {
 const canvas = document.querySelector("#bouncing-canvas");
 const renderer = new CanvasRenderer(canvas);
 const input = new InputManager(canvas);
-renderer.setSize(window.innerWidth * 0.9, window.innerHeight * 0.75);
+renderer.setSize(window.innerWidth * 0.9, (window.innerHeight - HEADER_HEIGHT) * 0.75);
 window.addEventListener("resize", () => {
-    renderer.setSize(window.innerWidth * 0.9, window.innerHeight * 0.75);
+    renderer.setSize(window.innerWidth * 0.9, (window.innerHeight - HEADER_HEIGHT) * 0.75);
 });
 const boundingBox = new Rect(0, 0, renderer.width, renderer.height);
 const particles = [];
