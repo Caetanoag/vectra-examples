@@ -4,7 +4,7 @@ import {
 	Color,
 	InputManager,
 	Vector2,
-} from "../../lib/index.js";
+} from "../lib/index.js";
 
 const G = 0.5;
 const TRAIL_LENGTH = 900;

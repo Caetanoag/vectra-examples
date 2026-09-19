@@ -4,7 +4,7 @@ import {
 	InputManager,
 	Rect,
 	Vector2,
-} from "../../lib/index.js";
+} from "../lib/index.js";
 
 const canvas = document.querySelector("canvas");
 const renderer = new CanvasRenderer(canvas as HTMLCanvasElement);

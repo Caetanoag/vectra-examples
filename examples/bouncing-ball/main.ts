@@ -5,7 +5,7 @@ import {
 	InputManager,
 	Rect,
 	Vector2,
-} from "../../lib/index.js";
+} from "../lib/index.js";
 
 const randomInteger = (min: number, max: number): number => {
 	return Math.trunc(Math.random() * (max - min) + min);
