@@ -4,13 +4,14 @@ const HEADER_HEIGHT = parseInt(getComputedStyle(document.documentElement).getPro
 const canvas = document.querySelector("canvas");
 const renderer = new CanvasRenderer(canvas);
 const input = new InputManager(canvas);
-renderer.setSize(window.innerWidth, window.innerHeight - HEADER_HEIGHT);
+renderer.setSize(window.innerWidth * 0.8, window.innerHeight * 0.8 - HEADER_HEIGHT);
 const Config = {
     boid: {
+        color_to_follow: -1,
         quantity: 150,
         radius: renderer.width * 0.005,
         wander: 0.005,
-        get mouse_fear_radius() {
+        get mouse_action_radius() {
             return this.radius * 10;
         },
         get predator_fear_radius() {
@@ -34,7 +35,7 @@ class Boid {
     radius;
     static DEFAULT_RADIUS = Config.boid.radius;
     static WANDER_STRENGTH = Config.boid.wander;
-    static MOUSE_FEAR_RADIUS = Config.boid.mouse_fear_radius;
+    static mouse_action_radius = Config.boid.mouse_action_radius;
     static PREDATOR_FEAR_RADIUS = Config.boid.predator_fear_radius;
     SPECIES;
     constructor(position, velocity = new Vector2(1, 1), acceleration = new Vector2(0, 0)) {
@@ -133,6 +134,20 @@ class Boid {
         delta = Math.atan2(Math.sin(delta), Math.cos(delta));
         this.velocity = this.velocity.rotate(delta * t);
     }
+    steerTowardsPoint(point, attractRadius, rate, dt) {
+        const towards = point.subtract(this.position);
+        const distance = towards.length;
+        if (distance >= attractRadius || distance < 1e-6)
+            return;
+        if (this.velocity.length < 1e-6) {
+            this.velocity = towards.normalized().scale(200);
+            return;
+        }
+        const t = 1 - Math.exp(-rate * dt);
+        let delta = towards.angle - this.velocity.angle;
+        delta = Math.atan2(Math.sin(delta), Math.cos(delta));
+        this.velocity = this.velocity.rotate(delta * t);
+    }
     steerAwayFromWalls(box, margin, rate, dt) {
         let dir = new Vector2(0, 0);
         if (this.position.x < box.left + margin)
@@ -182,7 +197,12 @@ class Boid {
         this.steerFromFlock(boids, dt);
         if (predator)
             this.steerAwayFromPoint(predator.position, Boid.PREDATOR_FEAR_RADIUS, 6, dt);
-        this.steerAwayFromPoint(mouse, Boid.MOUSE_FEAR_RADIUS, 8, dt);
+        if (Config.boid.color_to_follow !== this.SPECIES) {
+            this.steerAwayFromPoint(mouse, Boid.mouse_action_radius, 8, dt);
+        }
+        else {
+            this.steerTowardsPoint(mouse, Boid.mouse_action_radius, 8, dt);
+        }
         this.steerAwayFromWalls(box, this.radius * 8, 8, dt);
         const { v, p } = this.bounceFromWalls(dt, box);
         this.velocity = v;
@@ -261,6 +281,9 @@ const alignmentInput = document.querySelector("#alignment-weight");
 const alignmentValue = document.querySelector("#alignment-weight-value");
 const cohesionInput = document.querySelector("#cohesion-weight");
 const cohesionValue = document.querySelector("#cohesion-weight-value");
+const followWhiteButton = document.querySelector("#color-white");
+const followGreenButton = document.querySelector("#color-green");
+const followBlueButton = document.querySelector("#color-blue");
 const syncBoidQuantity = () => {
     const target = Math.max(Number.parseInt(boidQuantityInput.value, 10), 0);
     Config.boid.quantity = target;
@@ -286,11 +309,32 @@ const syncWeights = () => {
     alignmentValue.value = alignmentInput.value;
     cohesionValue.value = cohesionInput.value;
 };
+const followWhite = () => {
+    Config.boid.color_to_follow = -1;
+};
+const followGreen = () => {
+    Config.boid.color_to_follow = 0;
+};
+const followBlue = () => {
+    Config.boid.color_to_follow = 1;
+};
+const getColorBasedOnCode = (code) => {
+    if (code === 0) {
+        return Color.fromHex("#64FF64");
+    }
+    if (code === 1) {
+        return Color.fromHex("#6464FF");
+    }
+    return Color.fromHex("#FFFFFF");
+};
 boidQuantityInput.addEventListener("input", syncBoidQuantity);
 predatorSizeInput.addEventListener("input", syncPredatorSize);
 separationInput.addEventListener("input", syncWeights);
 alignmentInput.addEventListener("input", syncWeights);
 cohesionInput.addEventListener("input", syncWeights);
+followBlueButton.addEventListener("click", followBlue);
+followWhiteButton.addEventListener("click", followWhite);
+followGreenButton.addEventListener("click", followGreen);
 syncBoidQuantity();
 syncPredatorSize();
 syncWeights();
@@ -300,7 +344,7 @@ function loop(now) {
     const mousePosition = input.getMousePosition();
     last = now;
     renderer.fillRect(renderer.boundingRect, Color.fromHex("#242b32").withAlpha(0.35));
-    renderer.fillRect(Rect.fromCenter(mousePosition, new Vector2(Config.boid.mouse_fear_radius * 0.2, Config.boid.mouse_fear_radius * 0.2)), Color.green());
+    renderer.fillRect(Rect.fromCenter(mousePosition, new Vector2(Config.boid.mouse_action_radius * 0.2, Config.boid.mouse_action_radius * 0.2)), getColorBasedOnCode(Config.boid.color_to_follow));
     for (const boid of boids) {
         boid.update(dt, renderer.boundingRect, mousePosition, boids, predator);
     }

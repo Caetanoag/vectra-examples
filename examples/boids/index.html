@@ -29,7 +29,11 @@
             touch-action: none;
             cursor: none;
         }
-
+        h3 {
+            color: white;
+            font-size: 20px;
+            margin: auto;
+        }
         .control-panel {
             width: 100%;
             max-width: 800px;
@@ -64,7 +68,7 @@
         .control-group {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 12px;
         }
 
         .control-group label {
@@ -94,6 +98,16 @@
             border-radius: 4px;
             padding: 2px 8px;
             font-variant-numeric: tabular-nums;
+        }
+        .colors-choice {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+        
+        .colors-choice button {
+            width: 2rem;
+            height: 2rem;
+            margin: auto;
         }
     </style>
 </head>
@@ -138,6 +152,14 @@
             <div class="control-row">
                 <input type="range" id="cohesion-weight" min="0" max="50" step="1" value="8">
                 <output id="cohesion-weight-value">8</output>
+            </div>
+        </div>
+        <div class="control-group">
+            <h3>Select the Color to Follow</h3>
+            <div class="colors-choice">
+                <button type="button" class="color-button" id="color-white" style="background-color:#ffffff" title="White"></button>
+                <button type="button" class="color-button" id="color-blue" style="background-color:#6464FF" title="blue"></button>
+                <button type="button" class="color-button" id="color-green" style="background-color:#64FF64" title="green"></button>
             </div>
         </div>
     </div>

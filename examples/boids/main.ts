@@ -18,14 +18,18 @@ const HEADER_HEIGHT =
 const canvas = document.querySelector("canvas");
 const renderer = new CanvasRenderer(canvas as HTMLCanvasElement);
 const input = new InputManager(canvas as HTMLElement);
-renderer.setSize(window.innerWidth, window.innerHeight - HEADER_HEIGHT);
+renderer.setSize(
+	window.innerWidth * 0.8,
+	window.innerHeight * 0.8 - HEADER_HEIGHT,
+);
 
 const Config = {
 	boid: {
+		color_to_follow: -1,
 		quantity: 150,
 		radius: renderer.width * 0.005,
 		wander: 0.005,
-		get mouse_fear_radius() {
+		get mouse_action_radius() {
 			return this.radius * 10;
 		},
 		get predator_fear_radius() {
@@ -52,7 +56,7 @@ class Boid {
 
 	protected static readonly DEFAULT_RADIUS = Config.boid.radius;
 	protected static readonly WANDER_STRENGTH = Config.boid.wander;
-	public static readonly MOUSE_FEAR_RADIUS = Config.boid.mouse_fear_radius;
+	public static readonly mouse_action_radius = Config.boid.mouse_action_radius;
 	public static readonly PREDATOR_FEAR_RADIUS =
 		Config.boid.predator_fear_radius;
 	private readonly SPECIES: number;
@@ -170,7 +174,24 @@ class Boid {
 		delta = Math.atan2(Math.sin(delta), Math.cos(delta));
 		this.velocity = this.velocity.rotate(delta * t);
 	}
-
+	protected steerTowardsPoint(
+		point: Vector2,
+		attractRadius: number,
+		rate: number,
+		dt: number,
+	): void {
+		const towards = point.subtract(this.position);
+		const distance = towards.length;
+		if (distance >= attractRadius || distance < 1e-6) return;
+		if (this.velocity.length < 1e-6) {
+			this.velocity = towards.normalized().scale(200);
+			return;
+		}
+		const t = 1 - Math.exp(-rate * dt);
+		let delta = towards.angle - this.velocity.angle;
+		delta = Math.atan2(Math.sin(delta), Math.cos(delta));
+		this.velocity = this.velocity.rotate(delta * t);
+	}
 	protected steerAwayFromWalls(
 		box: Rect,
 		margin: number,
@@ -252,7 +273,11 @@ class Boid {
 				6,
 				dt,
 			);
-		this.steerAwayFromPoint(mouse, Boid.MOUSE_FEAR_RADIUS, 8, dt);
+		if (Config.boid.color_to_follow !== this.SPECIES) {
+			this.steerAwayFromPoint(mouse, Boid.mouse_action_radius, 8, dt);
+		} else {
+			this.steerTowardsPoint(mouse, Boid.mouse_action_radius, 8, dt);
+		}
 		this.steerAwayFromWalls(box, this.radius * 8, 8, dt);
 
 		const { v, p } = this.bounceFromWalls(dt, box);
@@ -379,7 +404,15 @@ const cohesionInput = document.querySelector(
 const cohesionValue = document.querySelector(
 	"#cohesion-weight-value",
 ) as HTMLOutputElement;
-
+const followWhiteButton = document.querySelector(
+	"#color-white",
+) as HTMLButtonElement;
+const followGreenButton = document.querySelector(
+	"#color-green",
+) as HTMLButtonElement;
+const followBlueButton = document.querySelector(
+	"#color-blue",
+) as HTMLButtonElement;
 const syncBoidQuantity = (): void => {
 	const target = Math.max(Number.parseInt(boidQuantityInput.value, 10), 0);
 	Config.boid.quantity = target;
@@ -407,13 +440,32 @@ const syncWeights = (): void => {
 	alignmentValue.value = alignmentInput.value;
 	cohesionValue.value = cohesionInput.value;
 };
-
+const followWhite = (): void => {
+	Config.boid.color_to_follow = -1;
+};
+const followGreen = (): void => {
+	Config.boid.color_to_follow = 0;
+};
+const followBlue = (): void => {
+	Config.boid.color_to_follow = 1;
+};
+const getColorBasedOnCode = (code: number): Color => {
+	if (code === 0) {
+		return Color.fromHex("#64FF64");
+	}
+	if (code === 1) {
+		return Color.fromHex("#6464FF");
+	}
+	return Color.fromHex("#FFFFFF");
+};
 boidQuantityInput.addEventListener("input", syncBoidQuantity);
 predatorSizeInput.addEventListener("input", syncPredatorSize);
 separationInput.addEventListener("input", syncWeights);
 alignmentInput.addEventListener("input", syncWeights);
 cohesionInput.addEventListener("input", syncWeights);
-
+followBlueButton.addEventListener("click", followBlue);
+followWhiteButton.addEventListener("click", followWhite);
+followGreenButton.addEventListener("click", followGreen);
 syncBoidQuantity();
 syncPredatorSize();
 syncWeights();
@@ -433,11 +485,11 @@ function loop(now: number) {
 		Rect.fromCenter(
 			mousePosition,
 			new Vector2(
-				Config.boid.mouse_fear_radius * 0.2,
-				Config.boid.mouse_fear_radius * 0.2,
+				Config.boid.mouse_action_radius * 0.2,
+				Config.boid.mouse_action_radius * 0.2,
 			),
 		),
-		Color.green(),
+		getColorBasedOnCode(Config.boid.color_to_follow),
 	);
 
 	for (const boid of boids) {
