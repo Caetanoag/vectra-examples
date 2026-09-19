@@ -28,11 +28,8 @@
                 </p>
             </div>
             <nav class="footer-links" aria-label="Footer links">
-                <div class="footer-col">
+                <div class="footer-col" id="examples-list">
                     <h3>Examples</h3>
-                    <a href="./examples/solar-system/index.html">Solar System</a>
-                    <a href="./examples/bouncing-ball/index.html">Particles in a Box</a>
-                    <a href="./examples/boids/index.html">Boids</a>
                 </div>
                 <div class="footer-col">
                     <h3>Source code</h3>
@@ -90,6 +87,7 @@
         ];
 
         const grid = document.getElementById("grid");
+        const examples_list = document.getElementById("examples-list");
         for (const example of EXAMPLES) {
             const card = document.createElement("a");
             card.className = "card";
@@ -119,6 +117,11 @@
             card.appendChild(tags);
             card.appendChild(open);
             grid.appendChild(card);
+
+            const a = document.createElement("a");
+            a.href = example.href;
+            a.textContent = example.title;
+            examples_list.append(a);
         }
     </script>
 </body>
